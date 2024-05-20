@@ -1,8 +1,6 @@
-import io
-import json
 import boto3
-import pandas as pd
-from flask import Flask, request, render_template
+from flask import Flask, request
+from flask_cors import CORS
 
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png'}
 
@@ -12,35 +10,20 @@ ACCESS_KEY = ''
 s3 = boto3.client('s3', aws_access_key_id=ACCESS_ID, aws_secret_access_key=ACCESS_KEY)
 app = Flask(__name__)
 app.debug = True
+CORS(app)
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/upload", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        first_name = request.form.get("fname")
-        last_name = request.form.get("lname")
-        address = request.form.get("address")
-        email = request.form.get("email")
-        uploaded_file = request.files["file-to-save"]
-
-        new_filename = first_name + '_' + last_name + '.' + uploaded_file.filename.rsplit('.', 1)[1].lower()
-        print(uploaded_file)
-
-        user_info = {
-            "first_name": first_name,
-            "last_name": last_name,
-            "address": address,
-            "email": email,
-        }
-
+        print("Inside Post Method")
+        data = request.data
+        print(data)
         # Upload user details
-        with open('file.txt', 'w') as data:
-            data.write(str(user_info))
-        with open('file.txt', 'rb') as data:
-            s3.upload_fileobj(data, bucket_name, 'user_data.txt')
-        # Upload file
-        s3.upload_fileobj(uploaded_file, bucket_name, new_filename)
-    return render_template('index.html')
+        with open('file.txt', 'w') as data_final:
+            data_final.write(str(data))
+        with open('file.txt', 'rb') as data_final:
+            s3.upload_fileobj(data_final, bucket_name, 'user_data.txt')
 
 
 app.run(debug=True)
