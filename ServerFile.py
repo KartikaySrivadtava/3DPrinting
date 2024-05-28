@@ -17,13 +17,28 @@ CORS(app)
 def index():
     if request.method == "POST":
         print("Inside Post Method")
-        data = request.data
-        print(data)
+        firstname = request.form.get('firstname')
+        print("First name is", firstname)
+        lastname = request.form.get('lastname')
+        print("Last name is", lastname)
+        email = request.form.get('email')
+        print("Email is", email)
+        address = request.form.get('address')
+        print("Address is", address)
+        pin = request.form.get('pin')
+        print("PIN is", pin)
+        city = request.form.get('city')
+        print("City is", city)
+        file = request.files['pdf']
+        print(file)
         # Upload user details
         with open('file.txt', 'w') as data_final:
-            data_final.write(str(data))
+            data_final.write(str(firstname)+','+str(lastname)+','+str(email)+','+str(address)+','+str(city)+','+str(pin))
         with open('file.txt', 'rb') as data_final:
             s3.upload_fileobj(data_final, bucket_name, 'user_data.txt')
+        s3.upload_fileobj(file, bucket_name, 'Uploaded File.pdf')
+        print("Files loaded successfully")
+    return "successful"
 
 
 app.run(debug=True)
